@@ -21,50 +21,94 @@ Five ways to read a passage:
 
 It does not target AI detectors. It edits for the reader.
 
-## Running it
+## Three review choices
 
-Open `index.html`. That is the whole thing: one file, no build step, no
-server. React is loaded from a CDN; everything else is in the file.
+- **ChatGPT — manual**: works on GitHub Pages or by opening `index.html`.
+  No API key or backend is needed. Start any review, copy the request from
+  the dialog into ChatGPT, then paste the JSON response back. Plainer
+  displays the same edits and reasons with individual accept/undo controls.
+  Keep Plainer open during the exchange. Long drafts, Debate and Peer
+  review require several exchanges. Nothing is sent to ChatGPT automatically.
+- **OpenAI API**: runs through the local server using Responses API.
+- **Claude API**: runs through the same server using Anthropic Messages API.
 
-To put it online, drop `index.html` in any static host — GitHub Pages,
-Netlify, Cloudflare Pages.
+The selector disables API providers until their server configuration is
+available. The manual option remains available even without a server.
+Provider changes are disabled while a model request is pending.
 
-## The API key
+## Local setup (Windows, macOS or Linux)
 
-There is no server, so the page uses **your own Anthropic API key**,
-which you can create at https://console.anthropic.com/settings/keys
+Install Node.js 22 or newer. In the project folder:
 
-The key is kept in this browser's `localStorage` and attached to
-requests to `api.anthropic.com` only. It is not sent anywhere else and
-there is nowhere else for it to go — there is no backend.
+```sh
+npm install
+```
 
-Be clear about what that means: a key held in a browser can be read by
-anything able to run script on the page. Use a key you can revoke, watch
-your usage, and never paste a key into a page you did not build or
-cannot read. Every request you make is billed to your own account.
+Copy `.env.example` to `.env` (PowerShell: `Copy-Item .env.example .env`).
+Open `.env` locally in a text editor and fill only the provider you want:
 
-To remove the key, clear site data for this page in your browser, or run
-`localStorage.removeItem('plainer:key')` in the console.
+```dotenv
+OPENAI_API_KEY=your-key
+OPENAI_MODEL=your-available-model-id
+ANTHROPIC_API_KEY=your-key
+ANTHROPIC_MODEL=claude-sonnet-4-6
+PORT=3000
+```
 
-## What it remembers
+For OpenAI, choose a model supported by Responses API and available to your
+API account. Both key and model are required to enable that provider.
+Leave unused keys blank. Never paste real keys into issues or commit them.
 
-Your decisions are kept in this browser: which kinds of change you keep
-rejecting, wording you have put back, terms you marked as off limits,
-and a log of passages for the progress view. Kept per language, since a
-phrase you defended in Arabic says nothing about your English. There is
-a panel that shows all of it and a button that wipes it. Nothing leaves
-the browser.
+```sh
+npm start
+```
 
-## Rebuilding
+Open http://127.0.0.1:3000. Restart the server after changing `.env`.
+The server itself runs on your computer without a hosting subscription;
+model API requests are billed by the configured provider. Manual mode
+makes no model API requests from Plainer.
 
-`index.html` is generated. The sources are `app.jsx` (the application)
-and `shim.jsx` (the key gate and browser storage), compiled together:
+## Hosting and keys
 
-    npx esbuild bundle.jsx --loader:.jsx=jsx --jsx=transform \
-      --jsx-factory=React.createElement --jsx-fragment=React.Fragment \
-      --minify --outfile=app.min.js
+GitHub Pages serves the manual mode only. It cannot run `server.mjs`.
+The included server deliberately listens on **127.0.0.1 only** and rejects
+foreign origins/hosts. It is for personal local use, not public deployment.
+A public API-backed edition needs authentication, per-user quotas and
+HTTPS hosting before exposing paid provider credentials through a service.
 
-then inlined into the page template.
+Provider keys stay in server environment variables. They are never returned
+to the browser. This version removes the old `plainer:key` localStorage
+entry; reconfigure Claude in `.env` if upgrading from the browser-key version.
+Do not put `.env` in GitHub Pages or any static public folder.
+
+## What it remembers and sends
+
+Editing preferences and the progress log remain in this browser's
+localStorage, per language. They can be inspected and cleared in the app.
+A review sends the selected passage and its editing instructions, including
+relevant preferences, to the selected API provider through the local server.
+Manual mode prepares that information for you to copy into ChatGPT yourself.
+There is no automatic synchronization between devices or ChatGPT chats.
+
+## Development
+
+`app.jsx` contains the editor. `shim.jsx` contains storage, the provider
+selector, the common transport and manual exchange dialog. The app's six
+model call sites all use that transport. `server.mjs` validates requests,
+keeps credentials on the server and normalizes both providers' responses.
+
+```sh
+npm run build
+npm test
+```
+
+The reproducible build combines both JSX sources and inserts the compiled
+code into `index.template.html` to produce `index.html`. Commit the generated
+page alongside its sources for GitHub Pages. React still loads from a CDN.
+Tests use mocked provider responses and do not incur API charges.
+
+Repeated source text inside one edit chunk is treated as ambiguous and
+reported as unmatched rather than silently modifying the first occurrence.
 
 ## Licence
 

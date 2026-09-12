@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+const shim=await readFile(new URL('../shim.jsx',import.meta.url),'utf8');
+function setup() {const ctx=vm.createContext({window:{},localStorage:{removeItem(){}},DOMException,fetch:async()=>Response.json({content:[{type:'text',text:'[]'}]})});vm.runInContext(shim.slice(0,shim.indexOf('function ManualDialog')),ctx);return {ctx,run:s=>vm.runInContext(s,ctx)};}
+test('manual transport returns imported text in common format without network access',async()=>{const {ctx,run}=setup();ctx.options={body:JSON.stringify({system:'Instructions',messages:[{role:'user',content:'Text'}]})};const result=run('modelRequest("review",options)');assert.equal(run('transport.active'),1);assert.equal(run('transport.pending.body.system'),'Instructions');run('transport.pending.finish("[]")');assert.equal((await (await result).json()).content[0].text,'[]');assert.equal(run('transport.active'),0);assert.equal(run('transport.pending'),null);});
+test('cancellation clears the pending dialog and active state',async()=>{const {ctx,run}=setup();const ctrl=new AbortController();ctx.options={body:'{}',signal:ctrl.signal};const result=run('modelRequest("review",options)');ctrl.abort();await assert.rejects(result,{name:'AbortError'});assert.equal(run('transport.pending'),null);assert.equal(run('transport.active'),0);});
+test('an already cancelled request never opens a dialog',async()=>{const {ctx,run}=setup();const ctrl=new AbortController();ctrl.abort();ctx.options={body:'{}',signal:ctrl.signal};await assert.rejects(run('modelRequest("review",options)'),{name:'AbortError'});assert.equal(run('transport.pending'),null);});
+test('API transport sends the selected provider to the local server',async()=>{const {ctx,run}=setup();ctx.fetch=async(url,opts)=>{assert.equal(url,'/api/review');assert.equal(JSON.parse(opts.body).provider,'openai');return Response.json({content:[]});};ctx.options={body:'{}'};run('transport.provider="openai"');await run('modelRequest("review",options)');assert.equal(run('transport.active'),0);});

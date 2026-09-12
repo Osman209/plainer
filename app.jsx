@@ -944,7 +944,7 @@ ${tail}`;
 }
 
 async function askOnce(text, lang, docType, audience, strength, register, terms, mem, signal) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -1040,7 +1040,9 @@ function buildSegments(source, groups) {
     if (!e || typeof e.original !== "string" || typeof e.revised !== "string") return;
     if (e.original === e.revised) return;
     const rel = chunk.text.indexOf(e.original);
-    if (rel === -1) {
+    // A repeated sentence inside one chunk is ambiguous. Leave it untouched
+    // and report it rather than attaching the edit to the wrong occurrence.
+    if (rel === -1 || !e.original || chunk.text.indexOf(e.original, rel + 1) !== -1) {
       unmatched++;
       return;
     }
@@ -1117,7 +1119,7 @@ ${lang === "ar" ? "الجملة المعدّلة" : lang === "es" ? "Frase edita
 ${lang === "ar" ? "الفئة" : lang === "es" ? "Categoría" : "Category"}: ${note.category}
 ${lang === "ar" ? "السبب المعطى" : lang === "es" ? "Motivo dado" : "Reason given"}: ${note.reason}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -1280,7 +1282,7 @@ Copia cada frase carácter por carácter.`,
 };
 
 async function askClaims(text, lang, docType, audience, signal) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -1451,7 +1453,7 @@ Tres o cuatro argumentos. Calidad antes que cantidad: no rellenes hasta cuatro.`
 };
 
 async function askSide(text, lang, side, docType, audience, signal) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -1662,7 +1664,7 @@ Incluye todas las frases, copiadas carácter por carácter. No des "why" para ba
 };
 
 async function askRead(text, lang, docType, audience, signal) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
@@ -1854,7 +1856,7 @@ ${DOCTYPE[lang][docType]}
 ${AUDIENCE[lang][audience]}
 
 ${REV_FORMAT[lang]}`;
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await modelRequest("review", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     signal,
