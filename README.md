@@ -40,6 +40,13 @@ Switching languages preserves the draft and returns to the editor.
 
 ## Import documents
 
+**Do I need to run a server?** On the GitHub Pages website, no: PDF,
+DOCX and TXT imports run in your browser. For a downloaded copy, use
+`npm start` and open `http://127.0.0.1:3000` to enable PDF imports;
+do not open `index.html` directly. Importing files does not need an API key.
+Direct AI review with an API key requires the local server and provider
+configuration. Manual ChatGPT and Claude review works on GitHub Pages.
+
 Choose or drop one PDF, Word (.docx), or UTF-8 TXT file, up to 10 MB.
 Text is extracted in the browser and appended to the existing draft.
 Dismiss the filename without deleting your draft. DOC files must first be
