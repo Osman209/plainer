@@ -16,6 +16,9 @@ export function createServer({env=process.env,fetchImpl=fetch}={}) {
     if (![expectedHost,alternateHost].includes(req.headers.host)) return send(403,{error:'Invalid host'});
     if (req.headers.origin && ![`http://${expectedHost}`,`http://${alternateHost}`].includes(req.headers.origin)) return send(403,{error:'Cross-origin requests are not allowed'});
     const path=new URL(req.url,`http://${expectedHost}`).pathname;
+    if(req.method==='GET' && ['/pdf.worker.min.mjs','/pdf.min.mjs','/mammoth.browser.js'].includes(path)) {
+      try {const asset=await readFile(new URL('.'+path,import.meta.url));res.writeHead(200,{'Content-Type':'text/javascript; charset=utf-8','X-Content-Type-Options':'nosniff'});res.end(asset);}catch{send(404,{error:'Build the page first'});}return;
+    }
     if(req.method==='GET' && path==='/api/config') return send(200,{providers:Object.fromEntries(Object.entries(providers).map(([name,p])=>[name,!!(p.key&&p.model)]))});
     if(req.method==='GET' && (path==='/' || path==='/index.html')) {
       try {const html=await readFile(new URL('./index.html',import.meta.url));res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','X-Content-Type-Options':'nosniff'});res.end(html);}catch{send(500,{error:'Build the page first: npm run build'});}return;

@@ -1,7 +1,10 @@
-import {readFile,writeFile} from 'node:fs/promises';
+import {readFile,writeFile,copyFile} from 'node:fs/promises';
 import {transform} from 'esbuild';
-const source = (await readFile('app.jsx','utf8')) + '\n' + (await readFile('shim.jsx','utf8'));
-const {code} = await transform(source,{loader:'jsx',jsxFactory:'React.createElement',jsxFragment:'React.Fragment',minify:true,target:'es2020'});
+const source = (await readFile('file-import.jsx','utf8')) + '\n' + (await readFile('app.jsx','utf8')) + '\n' + (await readFile('shim.jsx','utf8'));
+const {code} = await transform(source,{loader:'jsx',jsxFactory:'React.createElement',jsxFragment:'React.Fragment',minify:true,target:'es2022'});
+await copyFile('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','pdf.worker.min.mjs');
+await copyFile('node_modules/pdfjs-dist/build/pdf.min.mjs','pdf.min.mjs');
+await copyFile('node_modules/mammoth/mammoth.browser.js','mammoth.browser.js');
 const template = await readFile('index.template.html','utf8');
 await writeFile('index.html',template.replace('/* APP_BUNDLE */',()=>code.replace(/<\/script/gi,'<\\/script')));
 console.log('Built index.html');

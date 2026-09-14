@@ -1,7 +1,7 @@
 # plainer
 https://osman209.github.io/plainer/
-A style editor for academic and technical prose in English, Arabic and
-Spanish. It shows every change with the reason for it, so you decide one
+A style editor for academic and technical prose in English and Arabic.
+It shows every change with the reason for it, so you decide one
 by one, rather than handing back a rewritten block.
 
 Five ways to read a passage:
@@ -21,7 +21,7 @@ Five ways to read a passage:
 
 It does not target AI detectors. It edits for the reader.
 
-## Three review choices
+## Four review choices
 
 - **ChatGPT — manual**: works on GitHub Pages or by opening `index.html`.
   No API key or backend is needed. Start any review, copy the request from
@@ -31,6 +31,24 @@ It does not target AI detectors. It edits for the reader.
   review require several exchanges. Nothing is sent to ChatGPT automatically.
 - **OpenAI API**: runs through the local server using Responses API.
 - **Claude API**: runs through the same server using Anthropic Messages API.
+- **Claude — manual**: the same copy-and-paste workflow, opening Claude
+  instead of ChatGPT. No API key is required; the service's account limits apply.
+
+Choose English or Arabic in the top bar. The selection is saved in this
+browser and controls labels, settings, messages, direction and review language.
+Switching languages preserves the draft and returns to the editor.
+
+## Import documents
+
+Choose or drop one PDF, Word (.docx), or UTF-8 TXT file, up to 10 MB.
+Text is extracted in the browser and appended to the existing draft.
+Dismiss the filename without deleting your draft. DOC files must first be
+saved as DOCX; scanned PDFs require OCR elsewhere. Formatting is not imported.
+Use GitHub Pages or the local server for PDF imports; browsers restrict PDF
+modules when opening HTML directly from disk.
+
+Static hosting must include `index.html`, `mammoth.browser.js`,
+`pdf.min.mjs`, and `pdf.worker.min.mjs`. `npm run build` prepares these files.
 
 The selector disables API providers until their server configuration is
 available. The manual option remains available even without a server.
@@ -87,7 +105,7 @@ Editing preferences and the progress log remain in this browser's
 localStorage, per language. They can be inspected and cleared in the app.
 A review sends the selected passage and its editing instructions, including
 relevant preferences, to the selected API provider through the local server.
-Manual mode prepares that information for you to copy into ChatGPT yourself.
+Manual mode prepares that information for you to copy into ChatGPT or Claude yourself.
 There is no automatic synchronization between devices or ChatGPT chats.
 
 ## Development

@@ -1945,14 +1945,50 @@ function TickIcon({ size = 14 }) {
 
 /* ================================================================== */
 
-function Plainer() {
-  const [text, setText] = useState("");
+const UI_AR = {
+  "Hide options": "إخفاء الإعدادات",
+  "Options": "الإعدادات",
+  "Language": "اللغة",
+  "What kind of text is this": "نوع النص",
+  "Who will read it": "الجمهور المستهدف",
+  "How much to change": "درجة التعديل",
+  "Tone": "الأسلوب",
+  "Words to leave alone": "كلمات لا تُعدّل",
+  "Light": "خفيف",
+  "Standard": "متوسط",
+  "Thorough": "شامل",
+  "Less formal": "أقل رسمية",
+  "Leave as is": "كما هو",
+  "More formal": "أكثر رسمية",
+  "Only what clearly damages clarity.": "تعديل ما يؤثر بوضوح على فهم النص فقط.",
+  "Also milder wordiness and repeated sentence shapes.": "يشمل الإطالة البسيطة وتكرار تركيب الجمل.",
+  "Normal editorial judgement.": "مراجعة تحريرية متوازنة.",
+  "Clarity only. The tone stays where you put it.": "تحسين الوضوح مع الحفاظ على أسلوبك.",
+  "Journal or formal report. Formal does not mean wordy.": "أسلوب مناسب لدورية أو تقرير رسمي دون إطالة.",
+  "Research blog, or a message to a colleague. Never slangy.": "مناسب لمدونة بحثية أو رسالة لزميل، دون لغة عامية.",
+  "Hide what it remembers": "إخفاء التفضيلات المحفوظة",
+  "What it remembers about you": "التفضيلات المحفوظة",
+  "Forgotten": "تم مسح التفضيلات",
+  "Forget everything": "مسح كل التفضيلات",
+  "Citations, hedging and field conventions are left alone.": "الحفاظ على الاستشهادات والتحفظات وأعراف التخصص.",
+  "Active voice and short paragraphs; headings and figure references untouched.": "جمل مباشرة وفقرات قصيرة مع الحفاظ على العناوين ومراجع الأشكال.",
+  "The point has to land in the first two sentences. Greeting and sign-off untouched.": "توضيح الفكرة في أول جملتين مع الحفاظ على التحية والختام.",
+  "Short sentences and direct address are fine. No hype added.": "جمل قصيرة وخطاب مباشر دون مبالغة.",
+  "Kept very short. Never expanded into paragraphs.": "الحفاظ على الإيجاز دون تحويله إلى فقرات.",
+  "Discipline vocabulary stays. Nothing is explained down.": "الحفاظ على مصطلحات التخصص دون تبسيط مخل.",
+  "Terms stay, but each one has to be usable from context.": "الحفاظ على المصطلحات مع توضيح معناها من السياق.",
+  "Everyday words and short sentences. Qualifications are still kept.": "كلمات مألوفة وجمل قصيرة مع الحفاظ على التحفظات.",
+  "The finding first, the method second. No jargon without a gloss.": "النتيجة أولًا ثم المنهج مع شرح المصطلحات."
+};
+function Plainer({lang, setLang, text, setText}) {
+  const tr = value => lang === 'ar' ? (UI_AR[value] || value) : value;
+
   const [mode, setMode] = useState("edit");
   const [review, setReview] = useState(null);
   const [reading, setReading] = useState(null);
   const [debate, setDebate] = useState(null);
   const [claims, setClaims] = useState(null);
-  const [lang, setLang] = useState("auto");
+
   const [docType, setDocType] = useState("paper");
   const [audience, setAudience] = useState("specialists");
   const [strength, setStrength] = useState("standard");
@@ -2030,8 +2066,8 @@ function Plainer() {
     setTimeout(() => setToast(null), 1800);
   };
 
-  const draftLang = lang === "auto" ? detectLang(text) : lang;
-  const L = doc ? doc.lang : draftLang;
+  const draftLang = lang;
+  const L = lang;
   const t = T[L];
   const cats = CATS[L];
 
@@ -2106,7 +2142,7 @@ function Plainer() {
       setMutedCats({});
       setActive(null);
     } catch (err) {
-      if (err.name !== "AbortError") setError(err.message);
+      if (err.name !== "AbortError") setError(lang === "ar" ? "تعذرت المراجعة. تحقق من الاتصال وإعدادات الخدمة وصيغة الرد، ثم حاول مجددًا." : "Review failed. Check the connection, provider settings and response format, then try again.");
     } finally {
       abortRef.current = null;
       setBusy(false);
@@ -2129,7 +2165,7 @@ function Plainer() {
       const built = buildClaims(src, r.sentences, r.contradictions);
       setClaims({ ...built, lang: lg });
     } catch (err) {
-      if (err.name !== "AbortError") setError(err.message);
+      if (err.name !== "AbortError") setError(lang === "ar" ? "تعذرت المراجعة. تحقق من الاتصال وإعدادات الخدمة وصيغة الرد، ثم حاول مجددًا." : "Review failed. Check the connection, provider settings and response format, then try again.");
     } finally {
       abortRef.current = null;
       setBusy(false);
@@ -2161,7 +2197,7 @@ function Plainer() {
         agree: thesesAgree(sides[0].thesis, sides[1].thesis),
       });
     } catch (err) {
-      if (err.name !== "AbortError") setError(err.message);
+      if (err.name !== "AbortError") setError(lang === "ar" ? "تعذرت المراجعة. تحقق من الاتصال وإعدادات الخدمة وصيغة الرد، ثم حاول مجددًا." : "Review failed. Check the connection, provider settings and response format, then try again.");
     } finally {
       abortRef.current = null;
       setBusy(false);
@@ -2190,7 +2226,7 @@ function Plainer() {
         lang: lg,
       });
     } catch (err) {
-      if (err.name !== "AbortError") setError(err.message);
+      if (err.name !== "AbortError") setError(lang === "ar" ? "تعذرت المراجعة. تحقق من الاتصال وإعدادات الخدمة وصيغة الرد، ثم حاول مجددًا." : "Review failed. Check the connection, provider settings and response format, then try again.");
     } finally {
       abortRef.current = null;
       setBusy(false);
@@ -2231,7 +2267,7 @@ function Plainer() {
       if (!reports.length) throw new Error("No reviewer could be reached. Try again.");
       setReview({ reports, failed, lang: lg, words: countWords(src) });
     } catch (err) {
-      if (err.name !== "AbortError") setError(err.message);
+      if (err.name !== "AbortError") setError(lang === "ar" ? "تعذرت المراجعة. تحقق من الاتصال وإعدادات الخدمة وصيغة الرد، ثم حاول مجددًا." : "Review failed. Check the connection, provider settings and response format, then try again.");
     } finally {
       abortRef.current = null;
       setBusy(false);
@@ -2321,7 +2357,7 @@ function Plainer() {
     const fresh = blankMem();
     setMem(fresh);
     await saveMemory(fresh);
-    say("Forgotten");
+    say(tr("Forgotten"));
   };
 
   const notes = useMemo(
@@ -2408,7 +2444,7 @@ function Plainer() {
   };
 
   return (
-    <div style={S.desk}>
+    <div style={S.desk} dir={T[lang].dir}>
       <style>{CSS}</style>
 
       <header style={S.bar}>
@@ -2490,8 +2526,10 @@ function Plainer() {
           />
         ) : !doc ? (
           <section style={S.draftWrap}>
+            <FileImport lang={lang} disabled={busy} onText={value => setText(previous => previous.trim() ? previous + "\n\n" + value : value)} />
             <div style={S.page}>
               <textarea
+                aria-label={lang === "ar" ? "النص للمراجعة" : "Draft to review"}
                 style={{ ...S.textarea, ...proseStyle }}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -2586,7 +2624,7 @@ function Plainer() {
               </div>
 
               <div style={S.secondRow}>
-                {["en", "ar", "es"].map((k) => (
+                {[lang].map((k) => (
                   <button
                     key={k}
                     style={S.ghostBtn}
@@ -2596,8 +2634,8 @@ function Plainer() {
                     {t.sampleWord} · {T[k].label}
                   </button>
                 ))}
-                <button style={S.linkBtn} onClick={() => setShowOptions((v) => !v)}>
-                  {showOptions ? "Hide options" : "Options"}
+                <button style={S.linkBtn} aria-expanded={showOptions} onClick={() => setShowOptions((v) => !v)}>
+                  {showOptions ? tr("Hide options") : tr("Options")}
                 </button>
                 {!text.trim() && <span style={S.emptyHint}>{t.pasteFirst}</span>}
                 {text.trim() && (
@@ -2607,7 +2645,7 @@ function Plainer() {
                     {DOC_LABELS[draftLang][docType]} ·{" "}
                     {AUD_LABELS[draftLang][audience]}
                     {register !== "keep" &&
-                      ` · ${register === "more" ? "more formal" : "less formal"}`}
+                      ` · ${tr(register === "more" ? "More formal" : "Less formal")}`}
                   </span>
                 )}
               </div>
@@ -2627,13 +2665,14 @@ function Plainer() {
               {showOptions && (
                 <div style={S.options}>
                   <div>
-                    <label style={S.optLabel}>Language</label>
+                    <label style={S.optLabel}>{tr("Language")}</label>
                     <div style={S.segmented}>
-                      {[["auto", "Detect"], ["en", "English"], ["ar", "العربية"], ["es", "Español"]].map(
+                      {[["en", lang === "ar" ? "الإنجليزية" : "English"], ["ar", lang === "ar" ? "العربية" : "Arabic"]].map(
                         ([v, l]) => (
                           <button
                             key={v}
                             className={`seg ${lang === v ? "seg-on" : ""}`}
+                            disabled={busy}
                             onClick={() => setLang(v)}
                           >
                             {l}
@@ -2644,7 +2683,7 @@ function Plainer() {
                   </div>
 
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={S.optLabel}>What kind of text is this</label>
+                    <label style={S.optLabel}>{tr("What kind of text is this")}</label>
                     <div style={S.segmented}>
                       {["paper", "report", "email", "post", "chat"].map((v) => (
                         <button
@@ -2656,11 +2695,11 @@ function Plainer() {
                         </button>
                       ))}
                     </div>
-                    <p style={S.optHint}>{DOC_HINTS[docType]}</p>
+                    <p style={S.optHint}>{tr(DOC_HINTS[docType])}</p>
                   </div>
 
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={S.optLabel}>Who will read it</label>
+                    <label style={S.optLabel}>{tr("Who will read it")}</label>
                     <div style={S.segmented}>
                       {["specialists", "adjacent", "general", "client"].map((v) => (
                         <button
@@ -2672,13 +2711,13 @@ function Plainer() {
                         </button>
                       ))}
                     </div>
-                    <p style={S.optHint}>{AUD_HINTS[audience]}</p>
+                    <p style={S.optHint}>{tr(AUD_HINTS[audience])}</p>
                   </div>
 
                   <div>
-                    <label style={S.optLabel}>How much to change</label>
+                    <label style={S.optLabel}>{tr("How much to change")}</label>
                     <div style={S.segmented}>
-                      {[["light", "Light"], ["standard", "Standard"], ["thorough", "Thorough"]].map(
+                      {[["light", tr("Light")], ["standard", tr("Standard")], ["thorough", tr("Thorough")]].map(
                         ([v, l]) => (
                           <button
                             key={v}
@@ -2692,20 +2731,20 @@ function Plainer() {
                     </div>
                     <p style={S.optHint}>
                       {strength === "light"
-                        ? "Only what clearly damages clarity."
+                        ? tr("Only what clearly damages clarity.")
                         : strength === "thorough"
-                        ? "Also milder wordiness and repeated sentence shapes."
-                        : "Normal editorial judgement."}
+                        ? tr("Also milder wordiness and repeated sentence shapes.")
+                        : tr("Normal editorial judgement.")}
                     </p>
                   </div>
 
                   <div>
-                    <label style={S.optLabel}>Tone</label>
+                    <label style={S.optLabel}>{tr("Tone")}</label>
                     <div style={S.segmented}>
                       {[
-                        ["less", "Less formal"],
-                        ["keep", "Leave as is"],
-                        ["more", "More formal"],
+                        ["less", tr("Less formal")],
+                        ["keep", tr("Leave as is")],
+                        ["more", tr("More formal")],
                       ].map(([v, l]) => (
                         <button
                           key={v}
@@ -2718,25 +2757,23 @@ function Plainer() {
                     </div>
                     <p style={S.optHint}>
                       {register === "keep"
-                        ? "Clarity only. The tone stays where you put it."
+                        ? tr("Clarity only. The tone stays where you put it.")
                         : register === "more"
-                        ? "Journal or formal report. Formal does not mean wordy."
-                        : "Research blog, or a message to a colleague. Never slangy."}
+                        ? tr("Journal or formal report. Formal does not mean wordy.")
+                        : tr("Research blog, or a message to a colleague. Never slangy.")}
                     </p>
                   </div>
 
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={S.optLabel}>Words to leave alone</label>
+                    <label style={S.optLabel}>{tr("Words to leave alone")}</label>
                     <input
                       style={S.input}
                       value={terms}
                       onChange={(e) => setTerms(e.target.value)}
-                      placeholder="p-value, COVID-19, PhD, Nature, Cairo University"
+                      placeholder={lang === "ar" ? "جامعة القاهرة، قيمة الاحتمال، أسماء المصطلحات" : "p-value, COVID-19, PhD, Nature, Cairo University"}
                     />
                     <p style={S.optHint}>
-                      Anything here comes back untouched. Separate with commas.
-                      Names, acronyms, product and place names, and any term your
-                      field spells a particular way.
+                      {lang === "ar" ? "اكتب الأسماء والمصطلحات التي تريد الحفاظ عليها، وافصل بينها بفواصل." : "Names and terms here stay unchanged. Separate them with commas."}
                     </p>
                   </div>
                 </div>
@@ -2745,7 +2782,7 @@ function Plainer() {
               {mem && (memHasContent(mem) || (mem.history || []).length > 0 || showMem) && (
                 <div style={S.memBar}>
                   <button style={S.linkBtn} onClick={() => setShowMem((v) => !v)}>
-                    {showMem ? "Hide what it remembers" : "What it remembers about you"}
+                    {showMem ? tr("Hide what it remembers") : tr("What it remembers about you")}
                   </button>
                   <button
                     style={{ ...S.linkBtn, marginInlineStart: 16 }}
@@ -2756,12 +2793,10 @@ function Plainer() {
                   {showMem && (
                     <div style={S.memBody}>
                       <p style={S.memNote}>
-                        Not training. A record of decisions you already made, sent
-                        with the next passage so it stops repeating them. Stored in
-                        this browser only.
+                        {lang === "ar" ? "تفضيلات ناتجة عن قراراتك السابقة، تُرسل مع المراجعة التالية. تُحفظ في هذا المتصفح فقط." : "Your previous decisions inform the next review. Preferences are stored in this browser only."}
                       </p>
 
-                      {["en", "ar", "es"].map((lg) => {
+                      {[lang].map((lg) => {
                         const tired = tiredCategories(mem, lg);
                         const kept = (mem[lg] && mem[lg].restored) || [];
                         if (!tired.length && !kept.length) return null;
@@ -2795,7 +2830,7 @@ function Plainer() {
 
                       {mem.terms && mem.terms.length > 0 && (
                         <div style={S.memBlock}>
-                          <div style={S.memHead}>Words to leave alone</div>
+                          <div style={S.memHead}>{tr("Words to leave alone")}</div>
                           <div style={S.chips}>
                             {mem.terms.map((t2) => (
                               <span key={t2} className="chip chip-static">
@@ -2808,13 +2843,12 @@ function Plainer() {
 
                       {!memHasContent(mem) && (
                         <p style={S.memNote}>
-                          Nothing yet. Undo a change you disagree with and it will be
-                          recorded here.
+                          {lang === "ar" ? "لا توجد تفضيلات بعد. تراجع عن تعديل لا توافق عليه لتسجيله هنا." : "Nothing yet. Undo a change to record your preference here."}
                         </p>
                       )}
 
                       <button className="toggle" onClick={forgetAll}>
-                        Forget everything
+                        {tr("Forget everything")}
                       </button>
                     </div>
                   )}
@@ -3125,14 +3159,15 @@ function Spark({ values, width = 240, height = 54, color = "#15645A", lowerIsBet
  * a single "writing score": there is no instrument here that could
  * produce one honestly across months and across different pieces. */
 function Dashboard({ mem, t, onBack }) {
-  const rows = (mem.history || []).slice();
+  const currentLang = t.dir === "rtl" ? "ar" : "en";
+  const rows = (mem.history || []).filter(row => row.lang === currentLang);
   const totalWords = rows.reduce((a, r) => a + (r.words || 0), 0);
   const totalFlagged = rows.reduce((a, r) => a + (r.flagged || 0), 0);
   const totalKept = rows.reduce((a, r) => a + (r.kept || 0), 0);
   const trend = trendOf(rows);
 
   const problems = {};
-  ["en", "ar", "es"].forEach((lg) => {
+  [currentLang].forEach((lg) => {
     const acc = (mem[lg] && mem[lg].accepted) || {};
     Object.entries(acc).forEach(([c, n]) => {
       problems[c] = (problems[c] || 0) + n;

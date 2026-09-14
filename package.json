@@ -3,7 +3,21 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "engines": {"node": ">=22"},
-  "scripts": {"build":"node build.mjs", "start":"node --env-file-if-exists=.env server.mjs", "test":"node --test test/*.test.mjs"},
-  "devDependencies": {"esbuild":"0.25.12"}
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:ui": "node test-ui.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "esbuild": "0.25.12"
+  },
+  "dependencies": {
+    "mammoth": "^1.12.3",
+    "pdfjs-dist": "^6.3.289"
+  }
 }
